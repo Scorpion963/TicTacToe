@@ -15,10 +15,9 @@
 
 Stack: 
 
-Framework - Nextjs
-Authentication - Clerk
-Styling - Tailwind
-Animation - Framer Motion
-Database - Supabase/PostgresSQL
-Live updates - Supabase
-
+- [X] Framework - Nextjs
+- [X] Styling - Tailwind
+- [] Animation - Framer Motion
+- [] Database - Supabase/PostgresSQL
+- [] Live updates - Supabase
+- [] Authentication - Supabase
