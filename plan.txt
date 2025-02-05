@@ -1,0 +1,24 @@
+- [] Tic Tac Toe basic functionality
+- [] AI
+- [] Varying Difficulty
+- [] Online pvp 
+- [] Adding friends
+- [] Background music
+- [] Volume slider for music
+- [] Disable Music checkbox
+- [] Home Page
+- [] Enemy Selection Page 
+- [] AI Difficulty Selection Page
+- [] Find Friends Page
+- [] Gameplay Page 
+
+
+Stack: 
+
+Framework - Nextjs
+Authentication - Clerk
+Styling - Tailwind
+Animation - Framer Motion
+Database - Supabase/PostgresSQL
+Live updates - Supabase
+
