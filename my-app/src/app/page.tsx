@@ -1,14 +1,18 @@
-import { supabase } from "../../lib/supabaseClient";
-
+import ButtonContainer from "./components/Button";
+import HomeHeader from "./components/PageHeader";
 
 export default async function Home() {
-  const data = await supabase.from("test2").select()
-
-  console.log(data)
+  const buttons = [
+    { label: "Play", href: "/enemy-selection" },
+    { label: "Add Friends", href: "/friends" },
+  ];
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      
-     
+    <div className="flex items-center justify-center h-screen bg-foreground">
+      <div className="flex flex-col gap-12">
+        <HomeHeader>Tic Tac Toe</HomeHeader>
+        <ButtonContainer buttons={buttons} />
+      </div>
     </div>
   );
 }
+
