@@ -17,8 +17,8 @@ export default function GamePage() {
   const [crosses, setCrosses] = useState<number[]>([]);
   const [zeros, setZeros] = useState<number[]>([]);
   const [firstPlayerToMove, setFirstPlayerToMove] = useState<boolean>(true);
-  const [gameOver, setGameOver] = useState<boolean>(false);
-  const [winner, setWinner] = useState<string | null>(null);
+  const [gameOver, setGameOver] = useState<boolean>(true);
+  const [winner, setWinner] = useState<string | null>("Not_Ogurchik");
   const [draw, setDraw] = useState<boolean>(false);
 
   const checkWinner = () => {
@@ -84,32 +84,26 @@ export default function GamePage() {
     setFirstPlayerToMove(true);
     setGameOver(false);
   };
-
-  return (
-    <div className="w-full h-full flex items-center justify-center">
-      <div className="w-full max-w-[3000px] max-h-[2000px] h-screen text-background flex items-center gap-12 justify-center">
-        <div className="flex h-[80%] rounded-lg justify-between items-center  w-[80%]">
-          <div className="flex justify-center h-full w-full flex-col gap-12">
-            <div className="flex max-w-[800px]  w-full   flex-col items-center justify-center ">
-              <h1 className="text-4xl  font-bold text-center">Game Page</h1>
-            </div>
-            <div className="max-w-[800px] max-h-[800px] w-full  h-full border border-blue-100 border-opacity-10">
-              <div className="grid grid-cols-3 grid-rows-3 w-full h-full">
-                {Array.from({ length: 9 }, (_, i) => i + 1).map((i) => (
-                  <Box
-                    isChecked={isChecked}
-                    key={i}
-                    handleClick={handleClick}
-                    allowedToBeClicked={allowedToBeClicked}
-                    i={i}
-                  />
-                ))}
-              </div>
-            </div>
+  <div className="w-[90%] h-full max-w-[3000px]  max-h-[2000px] mx-auto text-white">
+    <div className="flex flex-col justify-start">
+      <h1 className="text-4xl font-bold flex items-center">Game Page</h1>
+      <div className="flex">
+        <div className="aspect-square  flex-1">
+          <div className="grid grid-cols-3 grid-rows-3 w-full h-full">
+            {Array.from({ length: 9 }, (_, i) => i + 1).map((i) => (
+              <Box
+                isChecked={isChecked}
+                key={i}
+                handleClick={handleClick}
+                allowedToBeClicked={allowedToBeClicked}
+                i={i}
+              />
+            ))}
           </div>
-
+        </div>
+        <div className="flex-1">
           {winner === null ? (
-            <div className="flex flex-col w-1/2 h-[80%] justify-around gap-4  mt-10">
+            <div className="hidden lg:flex flex-col justify-evenly items-center w-full gap-24">
               <PlayerCard firstPlayerToMove={firstPlayerToMove} />
               <PlayerCard firstPlayerToMove={firstPlayerToMove} />
             </div>
@@ -118,6 +112,43 @@ export default function GamePage() {
               <WinCard loser="" winner="" />
             </div>
           )}
+        </div>
+      </div>
+    </div>
+  </div>;
+  return (
+    <div className="w-[90%] max-w-[2500px] mx-auto min-h-screen text-white flex flex-col">
+      <h1 className="font-bold text-2xl 2xl:text-4xl text-center lg:text-start py-6">
+        Game Page
+      </h1>
+      <div className="flex lg:flex-row flex-col gap-12">
+        <div className="aspect-square flex-1">
+          <div className="grid grid-cols-3 grid-rows-3 w-full h-full">
+            {Array.from({ length: 9 }, (_, i) => i + 1).map((i) => (
+              <Box
+                isChecked={isChecked}
+                key={i}
+                handleClick={handleClick}
+                allowedToBeClicked={allowedToBeClicked}
+                i={i}
+              />
+            ))}
+          </div>
+        </div>
+        {!gameOver ? (
+          <div className="hidden lg:flex flex-1  flex-col gap-6">
+            <PlayerCard />
+            <VersusLine />
+            <PlayerCard />
+          </div>
+        ) : (
+          <div className="hidden lg:flex flex-1 justify-center items-center gap-6">
+            <WinCard winner="NOT_OGURCHIK" loser="Mr Marcus" />
+          </div>
+        )}
+
+        <div className="lg:hidden">
+          <MobileVersus />
         </div>
       </div>
     </div>
@@ -165,26 +196,29 @@ function WinCard({
   }, [winner]);
 
   return (
-    <Card className="h-[800px] max-w-[600px] flex flex-col justify-between w-2/3 bg-gray-900 border-none text-white rounded-lg">
-      <CardHeader className="flex flex-col gap-12">
+    <Card className="2xl:max-h-[800px] 2xl:max-w-[600px] border-none flex flex-col justify-between 2xl:w-2/3 bg-[#08101f] text-white rounded-xl 2xl:p-6 p-3">
+      <CardHeader className="flex flex-col gap-3 2xl:gap-12">
         <CardTitle className="flex justify-center">
           {" "}
-          <h1 className="font-bold text-4xl">NOT_OGURCHIK WINS!</h1>
+          <h1 className="font-bold text-xl 2xl:text-4xl">NOT_OGURCHIK WINS!</h1>
         </CardTitle>
         <CardDescription>
-          <p className="text-white opacity-90 text-lg">{currentPraise}</p>
+          <p className="text-white opacity-90 text-[0.50rem] 2xl:text-lg">{currentPraise}</p>
         </CardDescription>
       </CardHeader>
-      <CardContent className="bg-purple-600 flex items-center justify-center py-12">
+      <CardContent className="bg-purple-600 rounded-lg flex items-center justify-center 2xl:py-12 py-6">
         <div className="flex flex-col items-center">
-          <div className="text-yellow-400">
+          <div className="text-yellow-400 2xl:hidden block">
+            <Crown size={15} />
+          </div>
+          <div className="text-yellow-400 hidden 2xl:block">
             <Crown size={30} />
           </div>
-          <div className="text-6xl text-center">X</div>
+          <div className="2xl:text-6xl text-xl text-center">X</div>
         </div>
       </CardContent>
       <CardContent>
-        <div className="opacity-90 text-lg flex flex-col gap-4">
+        <div className="opacity-90 text-[0.50rem] 2xl:text-lg flex flex-col gap-2 2xl:gap-4 pt-3">
           <div>Marcus Total Wins</div>
           <div>NOT_OGURCHIK Total Wins</div>
           <div>Games Played</div>
@@ -193,16 +227,16 @@ function WinCard({
       <CardContent>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex gap-4 w-full">
-            <Button className="w-full bg-blue-600 hover:bg-opacity-80">
+            <Button className="w-full text-[0.50rem] 2xl:text-lg  bg-blue-600 hover:bg-opacity-80">
               Friends
             </Button>
-            <Button className="w-full bg-blue-600 hover:bg-opacity-80">
+            <Button className="w-full text-[0.50rem] 2xl:text-lg bg-blue-600 hover:bg-opacity-80">
               Select Enemy
             </Button>
           </div>
 
           <Button
-            className="hover:bg-opacity-80 bg-red-500"
+            className="hover:bg-opacity-80 text-[0.50rem] 2xl:text-lg bg-red-500"
             variant={"destructive"}
           >
             Replay
@@ -213,6 +247,38 @@ function WinCard({
   );
 }
 
+function VersusLine() {
+  return (
+    <div className="flex items-center gap-4">
+      <div className="bg-white opacity-70 flex-1 h-[0.05rem]"></div>
+      <div className="px-1 text-sm select-none">VS</div>
+      <div className="bg-white flex-1 opacity-70 h-[0.05rem]"></div>
+    </div>
+  );
+}
+
+function MobileVersus() {
+  return (
+    <div className="flex-col flex gap-2">
+      <MobileVersusPlayerSection />
+      <VersusLine />
+      <MobileVersusPlayerSection />
+    </div>
+  );
+}
+
+function MobileVersusPlayerSection() {
+  return (
+    <div className="text-xs flex justify-between items-center">
+      <div className="flex items-center gap-2">
+        <div className="size-6 rounded-full bg-white"></div>
+        <h1>UserName</h1>
+      </div>
+      <div>X</div>
+    </div>
+  );
+}
+
 function PlayerCard({
   firstPlayerToMove,
 }: {
@@ -220,25 +286,22 @@ function PlayerCard({
   firstPlayerToMove: boolean;
 }) {
   return (
-    <div className="w-full max-h-[400px] max-w-[600px] rounded-lg">
-      <Card className="w-full bg-indigo-900 text-white border-none">
-        <CardHeader>
-          <CardTitle className="w-full flex justify-between items-center">
-            <div className="flex gap-4 items-center">
-              <div className="bg-black size-16 rounded-full"></div>
-              <div>Yehor Marin</div>
-            </div>
-            <div className="text-4xl text-purple-500">X</div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div>Plays for X</div>
-          <div>Tiles owned: 1,2,3</div>
-          <div>Tiles left to win: 2</div>
-          <div>Total Wins: 3</div>
-        </CardContent>
-      </Card>
-    </div>
+    <Card className="w-full bg-indigo-900 text-white border-none">
+      <CardHeader>
+        <CardTitle className="w-full flex justify-between items-center">
+          <div className="flex gap-4 items-center">
+            <div className="bg-black size-16 rounded-full"></div>
+            <div>Yehor Marin</div>
+          </div>
+          <div className="text-2xl text-purple-500">X</div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <div>Tiles owned: 1,2,3</div>
+        <div>Tiles left to win: 2</div>
+        <div>Total Wins: 3</div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -258,7 +321,7 @@ function Box({
       onClick={() => handleClick(i)}
       disabled={allowedToBeClicked(i)}
       value={i}
-      className="w-full h-full rounded-none text-4xl"
+      className="w-full h-full rounded-none text-2xl"
     >
       {isChecked(i)}
     </Button>
