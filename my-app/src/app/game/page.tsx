@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Crown } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const MAX_MOVES = 9;
@@ -17,22 +18,26 @@ export default function GamePage() {
   const [crosses, setCrosses] = useState<number[]>([]);
   const [zeros, setZeros] = useState<number[]>([]);
   const [firstPlayerToMove, setFirstPlayerToMove] = useState<boolean>(true);
-  const [gameOver, setGameOver] = useState<boolean>(true);
-  const [winner, setWinner] = useState<string | null>("Not_Ogurchik");
+  const [gameOver, setGameOver] = useState<boolean>(false);
+  const [winner, setWinner] = useState<string | null>(null);
   const [draw, setDraw] = useState<boolean>(false);
+  const [loser, setLoser] = useState<string | null>(null);
+  const [playersWins, setPlayersWins] = useState<{ [key: string]: number }>({});
+
+  const winningCombinations = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+    [1, 4, 7],
+    [2, 5, 8],
+    [3, 6, 9],
+    [1, 5, 9],
+    [3, 5, 7],
+  ];
 
   const checkWinner = () => {
-    const winningCombinations = [
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 8, 9],
-      [1, 4, 7],
-      [2, 5, 8],
-      [3, 6, 9],
-      [1, 5, 9],
-      [3, 5, 7],
-    ];
     const player = firstPlayerToMove ? "X" : "O";
+    const secondPlayer = firstPlayerToMove ? "O" : "X";
     for (const combination of winningCombinations) {
       if (
         combination.every((value) =>
@@ -40,6 +45,11 @@ export default function GamePage() {
         )
       ) {
         setWinner(player);
+        setLoser(secondPlayer);
+        setPlayersWins((prev) => ({
+          ...prev,
+          [player]: prev[player] ? prev[player] + 1 : 1,
+        }));
         setGameOver(true);
         return true;
       }
@@ -64,6 +74,7 @@ export default function GamePage() {
 
   useEffect(() => {
     checkWinner();
+    console.log(draw);
   }, [crosses, zeros]);
 
   const allowedToBeClicked = (value: number) => {
@@ -84,38 +95,34 @@ export default function GamePage() {
     setFirstPlayerToMove(true);
     setGameOver(false);
   };
-  <div className="w-[90%] h-full max-w-[3000px]  max-h-[2000px] mx-auto text-white">
-    <div className="flex flex-col justify-start">
-      <h1 className="text-4xl font-bold flex items-center">Game Page</h1>
-      <div className="flex">
-        <div className="aspect-square  flex-1">
-          <div className="grid grid-cols-3 grid-rows-3 w-full h-full">
-            {Array.from({ length: 9 }, (_, i) => i + 1).map((i) => (
-              <Box
-                isChecked={isChecked}
-                key={i}
-                handleClick={handleClick}
-                allowedToBeClicked={allowedToBeClicked}
-                i={i}
-              />
-            ))}
-          </div>
-        </div>
-        <div className="flex-1">
-          {winner === null ? (
-            <div className="hidden lg:flex flex-col justify-evenly items-center w-full gap-24">
-              <PlayerCard firstPlayerToMove={firstPlayerToMove} />
-              <PlayerCard firstPlayerToMove={firstPlayerToMove} />
-            </div>
-          ) : (
-            <div className="flex flex-col w-full items-end h-full self-end">
-              <WinCard loser="" winner="" />
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  </div>;
+
+  const tilesLeftToWin = (sign: string) => {
+    let max = 0;
+    if (sign === "X") {
+      for (let i = 0; i < winningCombinations.length; i++) {
+        let counter = 0;
+        for (let z = 0; z < winningCombinations[i].length; z++) {
+          if (crosses.includes(winningCombinations[i][z])) {
+            counter++;
+          }
+        }
+        max = Math.max(max, counter);
+      }
+    } else if (sign === "O") {
+      for (let i = 0; i < winningCombinations.length; i++) {
+        let counter = 0;
+        for (let z = 0; z < winningCombinations[i].length; z++) {
+          if (zeros.includes(winningCombinations[i][z])) {
+            counter++;
+          }
+        }
+        max = Math.max(max, counter);
+      }
+    }
+
+    return max;
+  };
+
   return (
     <div className="w-[90%] max-w-[2500px] mx-auto min-h-screen text-white flex flex-col">
       <h1 className="font-bold text-2xl 2xl:text-4xl text-center lg:text-start py-6">
@@ -137,13 +144,32 @@ export default function GamePage() {
         </div>
         {!gameOver ? (
           <div className="hidden lg:flex flex-1  flex-col gap-6">
-            <PlayerCard />
+            <PlayerCard
+              tilesLeftToWin={() => tilesLeftToWin("X")}
+              playersWins={playersWins["X"] || 0}
+              currentTiles={crosses}
+              isMoving={firstPlayerToMove}
+            />
             <VersusLine />
-            <PlayerCard />
+            <PlayerCard
+              tilesLeftToWin={() => tilesLeftToWin("O")}
+              playersWins={playersWins["O"] || 0}
+              currentTiles={zeros}
+              isMoving={!firstPlayerToMove}
+            />
+          </div>
+        ) : gameOver && !draw ? (
+          <div className="hidden lg:flex flex-1 justify-center items-center gap-6">
+            <WinCard
+              sign={winner!}
+              replay={resetGame}
+              winner={winner!}
+              loser={loser!}
+            />
           </div>
         ) : (
-          <div className="hidden lg:flex flex-1 justify-center items-center gap-6">
-            <WinCard winner="NOT_OGURCHIK" loser="Mr Marcus" />
+          <div className="flex-1 lg:flex absolute lg: border lg:static rounded-lg lg:border-none left-1/2 top-1/2 -translate-x-1/2 -translate-y-[170%] items-center justify-center lg:left-0 lg:top-0 lg:translate-x-0 lg:translate-y-0">
+            <Draw replay={resetGame} />
           </div>
         )}
 
@@ -158,9 +184,13 @@ export default function GamePage() {
 function WinCard({
   winner = "NOT_OGURCHIK",
   loser = "Mr Marcus",
+  replay,
+  sign,
 }: {
   winner: string;
   loser: string;
+  replay: () => void;
+  sign: string;
 }) {
   const winnerPraise = [
     `${winner} wins! ${loser} is now questioning their life choices.`,
@@ -203,7 +233,9 @@ function WinCard({
           <h1 className="font-bold text-xl 2xl:text-4xl">NOT_OGURCHIK WINS!</h1>
         </CardTitle>
         <CardDescription>
-          <p className="text-white opacity-90 text-[0.50rem] 2xl:text-lg">{currentPraise}</p>
+          <p className="text-white opacity-90 text-[0.50rem] 2xl:text-lg">
+            {currentPraise}
+          </p>
         </CardDescription>
       </CardHeader>
       <CardContent className="bg-purple-600 rounded-lg flex items-center justify-center 2xl:py-12 py-6">
@@ -214,7 +246,7 @@ function WinCard({
           <div className="text-yellow-400 hidden 2xl:block">
             <Crown size={30} />
           </div>
-          <div className="2xl:text-6xl text-xl text-center">X</div>
+          <div className="2xl:text-6xl text-xl text-center">{sign}</div>
         </div>
       </CardContent>
       <CardContent>
@@ -227,15 +259,22 @@ function WinCard({
       <CardContent>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex gap-4 w-full">
-            <Button className="w-full text-[0.50rem] 2xl:text-lg  bg-blue-600 hover:bg-opacity-80">
-              Friends
+            <Button
+              asChild
+              className="w-full text-[0.50rem] 2xl:text-lg  bg-blue-600 hover:bg-opacity-80"
+            >
+              <Link href={"friends"}>Friends</Link>
             </Button>
-            <Button className="w-full text-[0.50rem] 2xl:text-lg bg-blue-600 hover:bg-opacity-80">
-              Select Enemy
+            <Button
+              asChild
+              className="w-full text-[0.50rem] 2xl:text-lg bg-blue-600 hover:bg-opacity-80"
+            >
+              <Link href={"/enemy-selection"}>Select Enemy</Link>
             </Button>
           </div>
 
           <Button
+            onClick={replay}
             className="hover:bg-opacity-80 text-[0.50rem] 2xl:text-lg bg-red-500"
             variant={"destructive"}
           >
@@ -244,6 +283,21 @@ function WinCard({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function Draw({ replay }: { replay: () => void }) {
+  return (
+    <div className="bg-[#08101f] flex flex-col gap-4 h-fit rounded-lg px-12 py-8 text-white text-center">
+      <h1 className="font-bold 2xl:text-6xl text-4xl">Draw!</h1>
+      <Button
+        variant={"destructive"}
+        className="text-lg p-6"
+        onClick={() => replay()}
+      >
+        Replay
+      </Button>
+    </div>
   );
 }
 
@@ -280,13 +334,27 @@ function MobileVersusPlayerSection() {
 }
 
 function PlayerCard({
-  firstPlayerToMove,
+  tilesLeftToWin,
+  isMoving,
+  currentTiles,
+  playersWins,
 }: {
-  winner: string;
-  firstPlayerToMove: boolean;
+  tilesLeftToWin: () => number;
+  isMoving: boolean;
+  currentTiles: number[];
+  playersWins: number;
 }) {
+  const [tilesCounter, setTilesCounter] = useState<number>(0);
+
+  useEffect(() => {
+    setTilesCounter(tilesLeftToWin());
+  }, [isMoving]);
   return (
-    <Card className="w-full bg-indigo-900 text-white border-none">
+    <Card
+      className={`w-full bg-indigo-900 text-white ${
+        isMoving ? "border border-red-500" : "border-none"
+      }`}
+    >
       <CardHeader>
         <CardTitle className="w-full flex justify-between items-center">
           <div className="flex gap-4 items-center">
@@ -297,9 +365,12 @@ function PlayerCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <div>Tiles owned: 1,2,3</div>
-        <div>Tiles left to win: 2</div>
-        <div>Total Wins: 3</div>
+        <div>
+          Tiles owned: {currentTiles.map((item) => item + ",")}{" "}
+          {currentTiles.length === 0 && "none"}
+        </div>
+        <div>Tiles left to win: {tilesCounter}</div>
+        <div>Total Wins: {playersWins}</div>
       </CardContent>
     </Card>
   );
