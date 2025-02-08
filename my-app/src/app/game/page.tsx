@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { b } from "framer-motion/client";
 import { Crown } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -23,6 +24,8 @@ export default function GamePage() {
   const [draw, setDraw] = useState<boolean>(false);
   const [loser, setLoser] = useState<string | null>(null);
   const [playersWins, setPlayersWins] = useState<{ [key: string]: number }>({});
+  const ai = true;
+  const board = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
   const winningCombinations = [
     [1, 2, 3],
@@ -64,12 +67,82 @@ export default function GamePage() {
   const handleClick = async (value: number) => {
     if (firstPlayerToMove && !gameOver) {
       await setCrosses((prev) => [...prev, value]);
-      setFirstPlayerToMove((prev) => !prev);
-    } else if (!firstPlayerToMove && !gameOver) {
+      await setFirstPlayerToMove((prev) => !prev);
+
+      if (!checkWinnerSelect(crosses)) {
+        const bestMove = findBestMove([...crosses, value], zeros);
+        if (bestMove !== -1) {
+          await setZeros((prev) => [...prev, bestMove]);
+          await setFirstPlayerToMove((prev) => !prev);
+        }
+      }
+    } else if (!firstPlayerToMove && !gameOver && !ai) {
       await setZeros((prev) => [...prev, value]);
       setFirstPlayerToMove((prev) => !prev);
     }
     return;
+  };
+
+  const checkWinnerSelect = (array: number[]) => {
+    for (const combination of winningCombinations) {
+      if (combination.every((value) => array.includes(value))) return true;
+    }
+  };
+
+  const findBestMove = (crosses: number[], zeros: number[]) => {
+    let bestScore = -Infinity;
+    let bestMove = -1;
+
+    for (let i = 1; i <= MAX_MOVES; i++) {
+      if (crosses.includes(i) || zeros.includes(i)) continue;
+
+      const newCrosses = [...crosses, i];
+      const score = minimax(newCrosses, zeros, 0, false);
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = i;
+      }
+    }
+
+    return bestMove;
+  };
+
+  const minimax = (
+    crosses: number[],
+    zeros: number[],
+    depth: number,
+    isMaximizing: boolean
+  ) => {
+    if (checkWinnerSelect(crosses)) return 10 - depth;
+    if (checkWinnerSelect(zeros)) return depth - 10;
+    if (crosses.length + zeros.length === MAX_MOVES) return 0;
+
+    if (isMaximizing) {
+      let bestScore = -Infinity;
+
+      for (let i = 1; i <= MAX_MOVES; i++) {
+        if (crosses.includes(i) || zeros.includes(i)) continue;
+
+        const newCrosses = [...crosses, i];
+        const score = minimax(newCrosses, zeros, depth + 1, false);
+        bestScore = Math.max(bestScore, score);
+      }
+
+      return bestScore;
+    } else {
+      let bestScore = +Infinity;
+
+      for (let i = 1; i <= MAX_MOVES; i++) {
+        if (crosses.includes(i) || zeros.includes(i)) continue;
+
+        const newZeros = [...zeros, i];
+        const score = minimax(crosses, newZeros, depth + 1, true);
+        bestScore = Math.min(bestScore, score);
+      }
+
+      return bestScore;
+    }
   };
 
   useEffect(() => {
@@ -98,26 +171,15 @@ export default function GamePage() {
 
   const tilesLeftToWin = (sign: string) => {
     let max = 0;
-    if (sign === "X") {
-      for (let i = 0; i < winningCombinations.length; i++) {
-        let counter = 0;
-        for (let z = 0; z < winningCombinations[i].length; z++) {
-          if (crosses.includes(winningCombinations[i][z])) {
-            counter++;
-          }
+    const array = sign === "X" ? crosses : zeros;
+    for (let i = 0; i < winningCombinations.length; i++) {
+      let counter = 0;
+      for (let z = 0; z < winningCombinations[i].length; z++) {
+        if (array.includes(winningCombinations[i][z])) {
+          counter++;
         }
-        max = Math.max(max, counter);
       }
-    } else if (sign === "O") {
-      for (let i = 0; i < winningCombinations.length; i++) {
-        let counter = 0;
-        for (let z = 0; z < winningCombinations[i].length; z++) {
-          if (zeros.includes(winningCombinations[i][z])) {
-            counter++;
-          }
-        }
-        max = Math.max(max, counter);
-      }
+      max = Math.max(max, counter);
     }
 
     return max;
@@ -131,7 +193,7 @@ export default function GamePage() {
       <div className="flex lg:flex-row flex-col gap-12">
         <div className="aspect-square flex-1">
           <div className="grid grid-cols-3 grid-rows-3 w-full h-full">
-            {Array.from({ length: 9 }, (_, i) => i + 1).map((i) => (
+            {board.map((i) => (
               <Box
                 isChecked={isChecked}
                 key={i}
