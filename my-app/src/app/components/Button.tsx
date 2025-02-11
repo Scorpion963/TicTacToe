@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import LogInButton from "./LogInButton";
-import LogOutButton from "./LogOutButton";
+
 
 
 export default async function ButtonContainer({
@@ -19,12 +18,12 @@ export default async function ButtonContainer({
           asChild
           size="lg"
           className=" hover:bg-primary/70 w-full h-16"
-          key={href} // Add a unique key for each button
+          key={href} 
         >
           <Link href={href}>{label}</Link>
         </Button>
       ))}
-      <LogInButton />  <LogOutButton />
+
     </div>
   );
 }
