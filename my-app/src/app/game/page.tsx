@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 const MAX_MOVES = 9;
 
 export default function GamePage() {
+  
   const [crosses, setCrosses] = useState<number[]>([]);
   const [zeros, setZeros] = useState<number[]>([]);
   const [firstPlayerToMove, setFirstPlayerToMove] = useState<boolean>(true);
