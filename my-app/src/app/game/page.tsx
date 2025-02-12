@@ -11,9 +11,12 @@ import SelfPlayableMode from "./hooks/SelfPlayableMode";
 
 const MAX_MOVES = 9;
 
+type PlayerWins = {
+  [player: string]: number;
+};
+
 export default function GamePage() {
-  
-  const{
+  const {
     crosses,
     draw,
     firstPlayerToMove,
@@ -22,9 +25,10 @@ export default function GamePage() {
     loser,
     resetGame,
     winner,
-    zeros
-  } = useGameLogic({gameMode: SelfPlayableMode})
+    zeros,
+  } = useGameLogic({ gameMode: SelfPlayableMode });
 
+  const [playerWins, setPlayerWins] = useState<PlayerWins>({});
 
   const board = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -54,6 +58,15 @@ export default function GamePage() {
     return max;
   };
 
+  useEffect(() => {
+    if (winner) {
+      setPlayerWins((prevPlayerWins) => ({
+        ...prevPlayerWins,
+        [winner]: (prevPlayerWins[winner] || 0) + 1,
+      }));
+    }
+  }, [winner]);
+
   return (
     <div className="w-[90%] max-w-[2500px] mx-auto min-h-screen text-white flex flex-col">
       <h1 className="font-bold text-2xl 2xl:text-4xl text-center lg:text-start py-6">
@@ -77,14 +90,14 @@ export default function GamePage() {
           <div className="hidden lg:flex flex-1  flex-col gap-6">
             <PlayerCard
               tilesLeftToWin={() => tilesLeftToWin("X")}
-              playersWins={0}
+              playersWins={playerWins["X"] || 0}
               currentTiles={crosses}
               isMoving={firstPlayerToMove}
             />
             <VersusLine />
             <PlayerCard
               tilesLeftToWin={() => tilesLeftToWin("O")}
-              playersWins={0}
+              playersWins={playerWins["O"] || 0}
               currentTiles={zeros}
               isMoving={!firstPlayerToMove}
             />
@@ -112,13 +125,7 @@ export default function GamePage() {
   );
 }
 
-
-
-
-
-
 function Copy() {
-  
   const [crosses, setCrosses] = useState<number[]>([]);
   const [zeros, setZeros] = useState<number[]>([]);
   const [firstPlayerToMove, setFirstPlayerToMove] = useState<boolean>(true);
@@ -128,7 +135,6 @@ function Copy() {
   const [loser, setLoser] = useState<string | null>(null);
   const [playersWins, setPlayersWins] = useState<{ [key: string]: number }>({});
   const ai = true;
-  
 
   const winningCombinations = [
     [1, 2, 3],
@@ -345,4 +351,3 @@ function Copy() {
     </div>
   );
 }
-

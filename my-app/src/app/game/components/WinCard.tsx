@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function WinCard({
-    winner = "NOT_OGURCHIK",
-    loser = "Mr Marcus",
+    winner,
+    loser,
     replay,
     sign,
   }: {
@@ -53,7 +53,7 @@ export default function WinCard({
         <CardHeader className="flex flex-col gap-3 2xl:gap-12">
           <CardTitle className="flex justify-center">
             {" "}
-            <h1 className="font-bold text-xl 2xl:text-4xl">NOT_OGURCHIK WINS!</h1>
+            <h1 className="font-bold text-xl 2xl:text-4xl">{winner}</h1>
           </CardTitle>
           <CardDescription>
             <p className="text-white opacity-90 text-[0.50rem] 2xl:text-lg">
@@ -75,7 +75,7 @@ export default function WinCard({
         <CardContent>
           <div className="opacity-90 text-[0.50rem] 2xl:text-lg flex flex-col gap-2 2xl:gap-4 pt-3">
             <div>Marcus Total Wins</div>
-            <div>NOT_OGURCHIK Total Wins</div>
+            <div>{winner} Wins</div>
             <div>Games Played</div>
           </div>
         </CardContent>

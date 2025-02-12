@@ -33,6 +33,7 @@ const useGameLogic = (config: GameConfig) => {
 
   const checkWinner = () => {
     const player = firstPlayerToMove ? "X" : "O";
+    const secondPlayer = firstPlayerToMove ? "O" : "X"
 
     for (const combination of winningCombinations) {
       if (
@@ -41,6 +42,7 @@ const useGameLogic = (config: GameConfig) => {
         )
       ) {
         setWinner(player);
+        setLoser(secondPlayer)
         setGameOver(true);
         return true;
       }
@@ -82,6 +84,7 @@ const useGameLogic = (config: GameConfig) => {
   const resetGame = () => {
     setDraw(false);
     setWinner(null);
+    setLoser(null);
     setCrosses([]);
     setZeros([]);
     setFirstPlayerToMove(true);
